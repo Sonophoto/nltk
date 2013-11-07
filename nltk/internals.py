@@ -150,10 +150,11 @@ def java(cmd, classpath=None, stdin=None, stdout=None, stderr=None,
         config_java()
 
     # Set up the classpath.
-    if classpath is None:
-        classpath = NLTK_JAR
-    else:
-        classpath += os.path.pathsep + NLTK_JAR
+    # EK: This doesn't work with 2.x versions of Mallet
+    #if classpath is None:
+        #classpath = NLTK_JAR
+    #else:
+        #classpath += os.path.pathsep + NLTK_JAR
 
     # Construct the full command string.
     cmd = list(cmd)
