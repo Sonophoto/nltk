@@ -740,8 +740,6 @@ def demo(train_size=100, test_size=100, java_home=None, mallet_home=None):
     crf = MalletCRF.train(fd, brown_train, #'/tmp/crf-model',
                           transduction_type='VITERBI')
     sample_output = crf.tag([w for (w,t) in brown_test[5]])
-    with open('foo.zip') as o:
-        o.write(sample_output)
     acc = nltk.metrics.accuracy(sample_output, brown_test)
     print('\nAccuracy: %.1f%%' % (acc*100))
     print('Sample output:')
