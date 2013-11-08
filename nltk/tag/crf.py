@@ -2,12 +2,13 @@
 #
 # Copyright (C) 2001-2013 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
+#         Ewan Klein <ewan@inf.ed.ac.uk>
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
 
 """
 An interface to Mallet <http://mallet.cs.umass.edu/>'s Linear Chain
-Conditional Random Field (LC-CRF) implementation.
+Conditional Random Field (LC-CRF) SimpleTagger implementation.
 
 A user-supplied feature detector function is used to convert each
 token to a featureset.  Each feature/value pair is then encoded as a
@@ -45,7 +46,7 @@ class MalletCRF(FeaturesetTaggerI):
     converting each feature (name, value) pair to a unique binary
     feature.
 
-    Ecah MalletCRF object is backed by a crf model file.  This
+    Each MalletCRF object is backed by a crf model file.  This
     model file is actually a zip file, and it contains one file for
     the serialized model ``crf-model.ser`` and one file for
     information about the structure of the CRF ``crf-info.xml``.
@@ -114,7 +115,7 @@ class MalletCRF(FeaturesetTaggerI):
     #/////////////////////////////////////////////////////////////////
 
     #: The name of the java script used to run MalletCRFs.
-    _RUN_CRF = "org.nltk.mallet.RunCRF"
+    _RUN_CRF = "cc.mallet.fst.SimpleTagger"
 
     def batch_tag(self, sentences):
         # Write the test corpus to a temporary file
@@ -125,7 +126,7 @@ class MalletCRF(FeaturesetTaggerI):
             # Run mallet on the test file.
             stdout, stderr = call_mallet([self._RUN_CRF,
                 '--model-file', os.path.abspath(self.crf_info.model_filename),
-                '--test-file', test_file], stdout='pipe')
+                test_file], stdout='pipe')
 
             # Decode the output
             labels = self.parse_mallet_output(stdout)
@@ -150,7 +151,9 @@ class MalletCRF(FeaturesetTaggerI):
     #/////////////////////////////////////////////////////////////////
 
     #: The name of the java script used to train MalletCRFs.
-    _TRAIN_CRF = "org.nltk.mallet.TrainCRF"
+    _TRAIN_CRF = "cc.mallet.fst.SimpleTagger"
+    #_TRAIN_CRF = "org.nltk.mallet.TrainCRF"
+    
 
     @classmethod
     def train(cls, feature_detector, corpus, filename=None,
@@ -246,9 +249,8 @@ class MalletCRF(FeaturesetTaggerI):
         try:
             if trace >= 1:
                 print('[MalletCRF] Calling mallet to train CRF...')
-            cmd = [MalletCRF._TRAIN_CRF,
-                   '--model-file', os.path.abspath(filename),
-                   '--train-file', train_file]
+            cmd = [MalletCRF._TRAIN_CRF, '--train', 'true',
+                   '--model-file', os.path.abspath(filename),train_file]
             if trace > 3:
                 call_mallet(cmd)
             else:
@@ -364,9 +366,9 @@ class MalletCRF(FeaturesetTaggerI):
                 if not line: break
                 out.append(line)
                 for (t, regexp) in MalletCRF._FILTER_TRAINING_OUTPUT:
-                    if t <= trace and re.match(regexp, line):
+                    if t <= trace and re.match(regexp, line.decode('utf8')):
                         indent = '  '*t
-                        print('[MalletCRF] %s%s' % (indent, line.rstrip()))
+                        print('[MalletCRF] %s%s' % (indent, line.rstrip().decode('utf8')))
                         break
         if p.returncode != 0:
             print("\nError encountered!  Mallet's most recent output:")
@@ -423,10 +425,10 @@ class MalletCRF(FeaturesetTaggerI):
         org.nltk.mallet.TestCRF, and convert it to a labeled
         corpus.
         """
-        if re.match(r'\s*<<start>>', s):
+        if re.match(r'\s*<<start>>', str(s)):
             assert 0, 'its a lattice'
         corpus = [[]]
-        for line in s.split('\n'):
+        for line in s.decode('utf8').split('\n'):
             line = line.strip()
             # Label with augmentations?
             if line:
@@ -738,7 +740,7 @@ def demo(train_size=100, test_size=100, java_home=None, mallet_home=None):
     crf = MalletCRF.train(fd, brown_train, #'/tmp/crf-model',
                           transduction_type='VITERBI')
     sample_output = crf.tag([w for (w,t) in brown_test[5]])
-    acc = nltk.tag.accuracy(crf, brown_test)
+    acc = nltk.metrics.accuracy(sample_output, brown_test)
     print('\nAccuracy: %.1f%%' % (acc*100))
     print('Sample output:')
     print(textwrap.fill(' '.join('%s/%s' % w for w in sample_output),
