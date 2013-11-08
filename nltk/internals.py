@@ -176,6 +176,7 @@ def java(cmd, classpath=None, stdin=None, stdout=None, stderr=None,
 #: The location of the NLTK jar file, which is used to communicate
 #: with external Java packages (such as Mallet) that do not have
 #: a sufficiently powerful native command-line interface.
+# EK: is this used for anything other than Mallet? If not, could be deleted.
 NLTK_JAR = os.path.abspath(os.path.join(os.path.split(__file__)[0],
                                         'nltk.jar'))
 

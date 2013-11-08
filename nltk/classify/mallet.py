@@ -75,9 +75,6 @@ def config_mallet(mallet_home=None):
         raise ValueError('While configuring mallet: directory %r '
                          'not found.' % lib_dir)
         
-    #_mallet_classpath = os.pathsep.join(os.path.join(lib_dir, filename)
-                                  #for filename in sorted(os.listdir(lib_dir))
-                                  #if filename.endswith('.jar'))
                                   
     _mallet_classpath = os.pathsep.join((class_dir, os.path.join(lib_dir, "mallet-deps.jar")))
     pass
@@ -106,7 +103,7 @@ def call_mallet(cmd, classpath=None, stdin=None, stdout=None, stderr=None,
 
 
 def demo():
-    #from nltk.classify import mallet    
+    #simplest example that works   
     tagger = "cc.mallet.fst.SimpleTagger"
       
     stdout, stderr = call_mallet([tagger, 

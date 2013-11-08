@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2001-2013 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
-#         Ewan Klein <ewan@inf.ed.ac.uk>
+#         Ewan Klein <ewan@inf.ed.ac.uk> (fixes)
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
 
@@ -152,8 +152,6 @@ class MalletCRF(FeaturesetTaggerI):
 
     #: The name of the java script used to train MalletCRFs.
     _TRAIN_CRF = "cc.mallet.fst.SimpleTagger"
-    #_TRAIN_CRF = "org.nltk.mallet.TrainCRF"
-    
 
     @classmethod
     def train(cls, feature_detector, corpus, filename=None,
