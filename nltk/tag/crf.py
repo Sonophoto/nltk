@@ -738,7 +738,7 @@ def demo(train_size=100, test_size=100, java_home=None, mallet_home=None):
     crf = MalletCRF.train(fd, brown_train, #'/tmp/crf-model',
                           transduction_type='VITERBI')
     sample_output = crf.tag([w for (w,t) in brown_test[5]])
-    acc = nltk.metrics.accuracy(sample_output, brown_test)
+    acc = nltk.tag.accuracy(crf, brown_test)
     print('\nAccuracy: %.1f%%' % (acc*100))
     print('Sample output:')
     print(textwrap.fill(' '.join('%s/%s' % w for w in sample_output),
