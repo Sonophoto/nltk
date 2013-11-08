@@ -13,14 +13,23 @@ See `<http://programminghistorian.org/lessons/topic-modeling-and-mallet>`_
 
 
 """
+import os
 from tempfile import mkstemp
 
+from nltk.classify import call_mallet
 
-_FIND_TOPICS = "cc.mallet.fst.SimpleTagger"
+_INPUT_DIR = 'cc.mallet.classify.tui.Text2Vectors'
 
-def import_dir(directory):
-    (fd, data_file) = mkstemp('.txt', 'train')
-    pass
+_TRAIN_TOPICS = "cc.mallet.topics.tui.Vectors2Topics"
+
+def import_dir(directory, trace=1):
+    
+    if trace >= 1:
+        print('[MalletLDA] Calling mallet to convert input directory: %s' %
+              directory)
+        
+    cmd = [_INPUT_DIR, '--input', os.path.abspath(directory)]
+    call_mallet(cmd)
 
 def train_topics(data, num_topics=100, optimize_interval=0,
                  output_state=None, output_topic_keys=None, output_doc_topics=None, trace=1):
@@ -28,7 +37,7 @@ def train_topics(data, num_topics=100, optimize_interval=0,
     (fd,  model_file) = mkstemp('.txt', 'topic_model')
     
     if trace >= 1:
-        print('[MalletCRF] Calling mallet to train CRF...')
+        print('[MalletLDA] Calling mallet to train topics from %s')
         
     cmd = [_FIND_TOPICS, '--train', 'true',
                    '--model-file', os.path.abspath(filename), data]
@@ -39,5 +48,10 @@ def parse_mallet_output(s):
 
 
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE)
+    
+    _mallet_home = os.environ.get('MALLET')
+    data_dir = os.path.join(_mallet_home, 'sample-data/web/en')
+    data = import_dir(data_dir)
+    
+    #import doctest
+    #doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE)
