@@ -455,7 +455,7 @@ class MalletCRF(FeaturesetTaggerI):
             fval = "'%s'" % MalletCRF._ESCAPE_RE.sub(
                 MalletCRF._escape_sub, fval)
         else:
-            fval = MalletCRF._ESCAPE_RE.sub(MalletCRF._escape_sub, '%r'%fval)
+            fval = MalletCRF._ESCAPE_RE.sub(MalletCRF._escape_sub, '%r' % fval)
         return fname+'='+fval
 
     #/////////////////////////////////////////////////////////////////
@@ -724,6 +724,15 @@ def demo(train_size=100, test_size=100, java_home=None, mallet_home=None):
         word = sentence[index]
         return dict(word=word, suffix=word[-2:], len=len(word))
 
+    def accuracy(classifier, gold):
+        untagged = [list(zip(*sent))[0] for sent in gold]
+        results = classifier.batch_tag(untagged)
+        correct = [l==r for ((fs,l), r) in zip(gold, results)]
+        if correct:
+            return float(sum(correct))/len(correct)
+        else:
+            return 0
+
     # Let nltk know where java & mallet are.
     nltk.internals.config_java(java_home)
     nltk.classify.mallet.config_mallet(mallet_home)
@@ -738,7 +747,7 @@ def demo(train_size=100, test_size=100, java_home=None, mallet_home=None):
     crf = MalletCRF.train(fd, brown_train, #'/tmp/crf-model',
                           transduction_type='VITERBI')
     sample_output = crf.tag([w for (w,t) in brown_test[5]])
-    acc = nltk.tag.accuracy(crf, brown_test)
+    acc = accuracy(crf, brown_test)
     print('\nAccuracy: %.1f%%' % (acc*100))
     print('Sample output:')
     print(textwrap.fill(' '.join('%s/%s' % w for w in sample_output),
