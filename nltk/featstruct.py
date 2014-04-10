@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Feature Structures
 #
-# Copyright (C) 2001-2013 NLTK Project
+# Copyright (C) 2001-2014 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>,
 #         Rob Speer,
 #         Steven Bird <stevenbird1@gmail.com>
@@ -2321,8 +2321,8 @@ class FeatStructParser(object):
 
             # Comma or looking at close paren
             m = re.compile(r'\s*(,|\+|(?=%s))\s*' % cp).match(s, position)
-            if m.group(1) == '+': seen_plus = True
             if not m: raise ValueError("',' or '+' or '%s'" % cp, position)
+            if m.group(1) == '+': seen_plus = True
             position = m.end()
 
 ######################################################################
