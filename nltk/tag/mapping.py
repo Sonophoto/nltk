@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Tagset Mapping
 #
-# Copyright (C) 2001-2013 NLTK Project
+# Copyright (C) 2001-2014 NLTK Project
 # Author: Nathan Schneider <nathan@cmu.edu>
 #         Steven Bird <stevenbird1@gmail.com>
 # URL: <http://nltk.org/>
@@ -38,7 +38,9 @@ from nltk.data import load
 _UNIVERSAL_DATA = "taggers/universal_tagset"
 _UNIVERSAL_TAGS = ('VERB','NOUN','PRON','ADJ','ADV','ADP','CONJ','DET','NUM','PRT','X','.')
 
-_MAPPINGS = defaultdict(lambda: defaultdict(dict))
+# _MAPPINGS = defaultdict(lambda: defaultdict(dict))
+# the mapping between tagset T1 and T2 returns UNK if appied to an unrecognized tag
+_MAPPINGS = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: 'UNK')))
 
 
 def _load_universal_map(fileid):

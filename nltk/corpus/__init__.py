@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Corpus Readers
 #
-# Copyright (C) 2001-2013 NLTK Project
+# Copyright (C) 2001-2014 NLTK Project
 # Author: Edward Loper <edloper@gmail.com>
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
@@ -62,8 +62,8 @@ For example, to read a list of the words in the Brown Corpus, use
 import re
 
 from nltk.tokenize import RegexpTokenizer
-from .util import LazyCorpusLoader
-from .reader import *
+from nltk.corpus.util import LazyCorpusLoader
+from nltk.corpus.reader import *
 
 abc = LazyCorpusLoader(
     'abc', PlaintextCorpusReader, r'(?!\.).*\.txt', encoding=[
@@ -161,8 +161,6 @@ reuters = LazyCorpusLoader(
     cat_file='cats.txt', encoding='ISO-8859-2')
 rte = LazyCorpusLoader(
     'rte', RTECorpusReader, r'(?!\.).*\.xml')
-semcor = LazyCorpusLoader(
-    'semcor', SemcorCorpusReader, r'brown./tagfiles/br-.*\.xml')
 senseval = LazyCorpusLoader(
     'senseval', SensevalCorpusReader, r'(?!\.).*\.pos')
 shakespeare = LazyCorpusLoader(
@@ -232,6 +230,9 @@ nombank_ptb = LazyCorpusLoader(
     'nombank.1.0', 'frames/.*\.xml', 'nombank.1.0.words',
     lambda filename: filename.upper(),
     ptb) # Must be defined *after* ptb corpus.
+semcor = LazyCorpusLoader(
+    'semcor', SemcorCorpusReader, r'brown./tagfiles/br-.*\.xml',
+    wordnet) # Must be defined *after* wordnet corpus.
 
 def demo():
     # This is out-of-date:
