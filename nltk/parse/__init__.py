@@ -1,6 +1,6 @@
 # Natural Language Toolkit: Parsers
 #
-# Copyright (C) 2001-2013 NLTK Project
+# Copyright (C) 2001-2014 NLTK Project
 # Author: Steven Bird <stevenbird1@gmail.com>
 #         Edward Loper <edloper@gmail.com>
 # URL: <http://nltk.org/>
@@ -73,4 +73,4 @@ from nltk.parse.projectivedependencyparser import (ProjectiveDependencyParser,
 from nltk.parse.nonprojectivedependencyparser import (NonprojectiveDependencyParser,
                                                       NaiveBayesDependencyScorer,
                                                       ProbabilisticNonprojectiveParser)
-from .malt import MaltParser
+from nltk.parse.malt import MaltParser
