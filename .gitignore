@@ -22,3 +22,6 @@ web/_build
 
 # git mergetools backups
 *.orig
+
+*.wpu
+*.wpr
