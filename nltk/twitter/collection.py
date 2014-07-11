@@ -42,6 +42,6 @@ class Twitter:
 
 
 tw = Twitter()
-#tw.authenticate('creds.json')
+tw.authenticate('creds.json')
 #tw.capture()
 tw.tweet_text(fn='test.json', dumptofile=False)

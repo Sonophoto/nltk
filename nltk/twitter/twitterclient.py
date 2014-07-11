@@ -21,13 +21,13 @@ class TwitterRetrieval(object):
             print(e)
             
     def sample(self):
-        try:
-            r = self.api.request('statuses/sample')
-            for item in r.get_iterator():
-                print(item['text'] if 'text' in item else item)
+       
+        r = self.api.request('statuses/sample')
+        for item in r.get_iterator():
+            if 'text' in item:
+                print(item['id'], item['text'])
         
-        except Exception as e:
-            print(e)
+
             
     def filter(self, track_term):
         try:   
@@ -38,9 +38,9 @@ class TwitterRetrieval(object):
         except Exception as e:
             print(e)    
         
-    def retrievebyID(self, tweet_id):
+    def statusID(self, tweet_id):
         try:
-            r = self.api.request('statuses/show/', {'id': tweet_id})
+            r = self.api.request('statuses/show/%s' % tweet_id)
            
             for item in r.get_iterator():
                 print(item['text'] if 'text' in item else item)
@@ -51,5 +51,6 @@ class TwitterRetrieval(object):
     
     
 if __name__ == "__main__":
-    twitter = TwitterRetrieval()
-    twitter.sample()
+    retriever = TwitterRetrieval()
+    #retriever.sample()
+    retriever.statusID(487578386064486400)
