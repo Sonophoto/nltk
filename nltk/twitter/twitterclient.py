@@ -40,10 +40,10 @@ class TwitterRetrieval(object):
         
     def statusID(self, tweet_id):
         try:
-            r = self.api.request('statuses/show/%s' % tweet_id)
+            r = self.api.request('statuses/show/:PARAM', {'id': tweet_id})
            
             for item in r.get_iterator():
-                print(item['text'] if 'text' in item else item)
+                print(item['text'].encode('utf-8') if 'text' in item else item)
         
         except Exception as e:
             print(e)        
@@ -53,4 +53,4 @@ class TwitterRetrieval(object):
 if __name__ == "__main__":
     retriever = TwitterRetrieval()
     #retriever.sample()
-    retriever.statusID(487578386064486400)
+    retriever.statusID(487276326278410241)
