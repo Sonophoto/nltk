@@ -29,7 +29,19 @@ class Streamer(TwythonStreamer):
         print(status_code)
 
 
+class RESTClient:
+    def __init__(self, app_key, app_secret, oauth_token, oauth_token_secret):
+        self.client = Twython(app_key, app_secret, oauth_token, oauth_token_secret)
         
+        
+    def hydrate(self, infile):
+        ids = []
+        with open(infile) as f:
+            for line in f:
+                ids.append(line.rstrip())
+                # returns a json object per line 
+            return self.client.post('statuses/lookup', {'id':  ids})
+                
         
 class TweetHandler:
     def __init__(self, client, limit=10, repeat=False, fprefix='tweets'):
@@ -99,26 +111,29 @@ def dehydrate_demo(outfile):
     with open(outfile, 'w') as f:
         for id_str in ids:
             print(id_str, file=f)
+            
+
+def hydrate_demo(infile):
+    client = RESTClient(*credentials('creds.json'))
+    ids = client.hydrate(infile)
+    for i in ids:
+        print(i)
         
     
-demo = 2
+demo = 3
 
 if __name__ == "__main__":
     if demo == 1:
         stream_demo()
     elif demo == 2:
         dehydrate_demo('ids.txt')
+    elif demo == 3:
+        hydrate_demo('ids.txt')
+
+
     
  
 
     
-
-   
-    
-     
-    #client.statuses.sample()
-    
-    #tr = TwitterRetrieval()
-    #tr.sample()
 
         
