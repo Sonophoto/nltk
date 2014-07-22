@@ -5,7 +5,6 @@
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
 
-from functools import partial
 import json
 import time
 
@@ -29,7 +28,7 @@ class Streamer(TwythonStreamer):
         print(status_code)
 
 
-class RESTClient:
+class Query:
     def __init__(self, app_key, app_secret, oauth_token, oauth_token_secret):
         self.client = Twython(app_key, app_secret, oauth_token, oauth_token_secret)
         
@@ -39,7 +38,8 @@ class RESTClient:
         with open(infile) as f:
             for line in f:
                 ids.append(line.rstrip())
-                # returns a json object per line 
+                chunks = [l[i:i+100] for i in range(0, len(l), 100)]
+                # returns line-delimited json 
             return self.client.post('statuses/lookup', {'id':  ids})
                 
         
@@ -51,7 +51,6 @@ class TweetHandler:
         self.counter = 0
         self.fprefix = fprefix
         self.fname = '{0}.{1}.json'.format(fprefix, time.strftime('%Y%m%d-%H%M%S'))
-        #self.fname = fprefix + '.' + time.strftime('%Y%m%d-%H%M%S') + '.json'
         self.output  = open(self.fname, 'w')
         
     def render(self, data, encoding=None):
@@ -114,7 +113,7 @@ def dehydrate_demo(outfile):
             
 
 def hydrate_demo(infile):
-    client = RESTClient(*credentials('creds.json'))
+    client = Query(*credentials('creds.json'))
     ids = client.hydrate(infile)
     for i in ids:
         print(i)
