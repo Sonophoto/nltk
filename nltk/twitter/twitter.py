@@ -6,7 +6,8 @@
 # For license information, see LICENSE.TXT
 
 import json
-import time
+import os
+import datetime
 
 from twython import Twython, TwythonStreamer
 from util import credentials
@@ -38,20 +39,34 @@ class Query:
         with open(infile) as f:
             for line in f:
                 ids.append(line.rstrip())
-                chunks = [l[i:i+100] for i in range(0, len(l), 100)]
-                # returns line-delimited json 
-            return self.client.post('statuses/lookup', {'id':  ids})
+                id_chunks = [ids[i:i+100] for i in range(0, len(ids), 100)]
+                # returns line-delimited json
+            return self.client.post('statuses/lookup', {'id':  id_chunks})
                 
         
 class TweetHandler:
-    def __init__(self, client, limit=10, repeat=False, fprefix='tweets'):
+    def __init__(self, client, limit=2000, repeat=False, fprefix='tweets', subdir='streamed_data', ):
         self.client = client
         self.limit = limit
         self.repeat = repeat
         self.counter = 0
+        self.subdir = subdir
         self.fprefix = fprefix
-        self.fname = '{0}.{1}.json'.format(fprefix, time.strftime('%Y%m%d-%H%M%S'))
+        self.fname = self.timestamped_file()
         self.output  = open(self.fname, 'w')
+        
+    def timestamped_file(self):
+        subdir = self.subdir
+        fprefix = self.fprefix
+        if subdir:
+                if not os.path.exists(subdir):
+                    os.mkdir(subdir)
+                   
+        fname = os.path.join(subdir, fprefix)
+        fmt = '%Y%m%d-%H%M%S'
+        ts = datetime.datetime.now().strftime(fmt)
+        outfile = '{0}.{1}.json'.format(fname, ts)
+        return outfile    
         
     def render(self, data, encoding=None):
         text = data['text']
@@ -68,23 +83,26 @@ class TweetHandler:
 
         
     def dump(self, data, verbose=True):
+        """
+        Dump Twitter data as line-delimited JSON into one or more files.
+        """
         json_data = json.dumps(data)
-        self.output.write(json_data + "\n")
-        
+        self.output.write(json_data + "\n")        
         self.counter += 1
         if verbose:
-            print('Writing to %s' % self.fname)            
-            print(self.counter)
+            print('Writing to {}'.format(self.fname))           
             
+        
         if self.counter >= self.limit:
             self.output.close()
             if not self.repeat:
-                client.disconnect()
+                self.client.disconnect()
             else:
-                self.output  = open(self.fname, 'w')
-                #self.output = open('../streaming_data/' + self.fprefix + '.' 
-                               #+ time.strftime('%Y%m%d-%H%M%S') + '.json', 'w')
-            self.counter = 0
+                self.output = open(self.timestamped_file(), 'w')               
+                self.counter = 0
+                if verbose:
+                    print('Writing to new file {}'.format(self.fname))           
+                    #print(self.counter)                    
                   
 
 def dehydrate(infile):
@@ -99,13 +117,13 @@ def stream_demo():
     handler = TweetHandler(client)
     
     method = handler.dump
-    method = handler.render      
+    #method = handler.render      
     client.register(method)
     client.statuses.sample()
     
     
 def dehydrate_demo(outfile):
-    infile = 'streamer.20140721-105157.json'
+    infile = 'streamed_data/tweets.20140723-163436.json'
     ids = dehydrate(infile)
     with open(outfile, 'w') as f:
         for id_str in ids:
@@ -119,14 +137,14 @@ def hydrate_demo(infile):
         print(i)
         
     
-demo = 3
+demos = [3]
 
 if __name__ == "__main__":
-    if demo == 1:
+    if 1 in demos:
         stream_demo()
-    elif demo == 2:
+    if 2 in demos:
         dehydrate_demo('ids.txt')
-    elif demo == 3:
+    if 3 in demos:
         hydrate_demo('ids.txt')
 
 
