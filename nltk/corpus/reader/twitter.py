@@ -1,4 +1,4 @@
-# Natural Language Toolkit: Plaintext Corpus Reader
+# Natural Language Toolkit: Twitter Corpus Reader
 #
 # Copyright (C) 2001-2014 NLTK Project
 # Author: Ewan Klein <ewan@inf.ed.ac.uk>
@@ -18,6 +18,7 @@ from nltk.tokenize import *
 from nltk.corpus.reader.util import StreamBackedCorpusView
 from nltk.corpus.reader.api import CorpusReader
 
+from potts import TweetTokenizer
 
 class TwitterCorpusReader(CorpusReader):
     """
@@ -33,7 +34,7 @@ class TwitterCorpusReader(CorpusReader):
        classes (e.g., to skip the preface sections of documents.)"""
 
     def __init__(self, root, fileids,
-                 word_tokenizer=WordPunctTokenizer(),                
+                 word_tokenizer=TweetTokenizer(),                
                  encoding='utf8'):
         """
         Construct a new plaintext corpus reader for a set of documents
