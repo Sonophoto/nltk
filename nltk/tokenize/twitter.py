@@ -45,7 +45,7 @@ import urllib.request, urllib.parse, urllib.error
 #
 #     <:| and some text >:)
 #
-# Most imporatantly, the final element should always be last, since it
+# Most importantly, the final element should always be last, since it
 # does a last ditch whitespace-based tokenization of whatever is left.
 
 # This particular element is used in a couple ways, so we define it
@@ -61,7 +61,41 @@ emoticon_string = r"""
       [\-o\*\']?                 # optional nose
       [:;=8]                     # eyes
       [<>]?
+      |
+      <3                         # heart
     )"""
+
+# URL pattern due to John Gruber
+
+url_string = r"""
+(
+(?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]
+|
+[a-z0-9.\-]+[.‌​][a-z]{2,4}/)
+(?:[^\s()<>]+
+|
+(([^\s()<>]+|(([^\s()<>]+)))*))+
+(?:(([^\s()<>]+|(‌​([^\s()<>]+)))*)
+|
+[^\s`!()[]{};:'".,<>?«»“”‘’])
+)
+"""
+
+#url_string = r"""
+#(?i)
+#\b(
+    #(?:https?://|www\d{0,3}[.]
+    #|
+    #[a-z0-9.\-]+[.][a-z]{2,4}/)
+    #(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))
+    #+(
+        #?:\
+        #(([^\s()<>]+|(\([^\s()<>]+\)))*\)
+        #|
+        #[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]
+    #)
+#)
+#"""
 
 # The components of the tokenizer:
 regex_strings = (
@@ -82,9 +116,9 @@ regex_strings = (
       \d{4}          # base
     )"""
     ,
-    # Emoticons:
+    # ASCII Emoticons
     emoticon_string
-    ,    
+    ,
     # HTML tags:
      r"""<[^>]+>"""
     ,
@@ -94,6 +128,7 @@ regex_strings = (
     # Twitter hashtags:
     r"""(?:\#+[\w_]+[\w\'_\-]*[\w_]+)"""
     ,
+    
     # Remaining word types:
     r"""
     (?:[a-z][a-z'\-_]+[a-z])       # Words with apostrophes or dashes.
@@ -106,6 +141,11 @@ regex_strings = (
     |
     (?:\S)                         # Everything else that isn't whitespace.
     """
+    ,
+    # URLs
+    url_string,
+    r"""(?:\S)"""
+
     )
 
 ######################################################################
@@ -115,7 +155,7 @@ word_re = re.compile(r"""(%s)""" % "|".join(regex_strings), re.VERBOSE | re.I
                      | re.UNICODE)
 
 # The emoticon string gets its own regex so that we can preserve case for them as needed:
-emoticon_re = re.compile(regex_strings[1], re.VERBOSE | re.I | re.UNICODE)
+emoticon_re = re.compile(emoticon_string, re.VERBOSE | re.I | re.UNICODE)
 
 # These are for regularizing HTML entities to Unicode:
 html_entity_digit_re = re.compile(r"&#\d+;")
@@ -180,18 +220,41 @@ class TweetTokenizer:
 
 if __name__ == '__main__':
     
-    tokenise = TweetTokenizer().tokenize
+    def test(s, toks):
+        tokenise = TweetTokenizer().tokenize
+        if tokenise(s) == toks:
+            return True
+        return tokenise(s)
+    
+    
+    s0 = "This is a cooool #dummysmiley: :-) :-P <3"
     s1 = "Naps are a must \ud83d\ude34\ud83d\ude34"
     s2 = "Renato fica com muito medo de ouvir meus \u00e1udios perto da gaja dele, pois s\u00f3 falo merda KKK"
     s3 = "\u0412\u043b\u0430\u0434\u0435\u043b\u0435\u0446 20th Century Fox \u043d\u0430\u043c\u0435\u0440\u0435\u043d \u043a\u0443\u043f\u0438\u0442\u044c Warner Bros."
     s4 = "RT @facugambande: Ya por arrancar a grabar !!! #TirenTirenTiren vamoo !!"
     s5 = "http://t.co/7r8d5bVKyA http://t.co/hZpwZe1uKt http://t.co/ZKb7GKWocy Ничто так не сближает людей"
     
-    print(tokenise(s1) == ['Naps', 'are', 'a', 'must', '\ud83d', '\ude34', '\ud83d', '\ude34'])
-    print(tokenise(s2) == ['Renato', 'fica', 'com', 'muito', 'medo', 'de', 'ouvir', 'meus', 'áudios', 'perto', 'da', 'gaja', 'dele', ',', 'pois', 'só', 'falo', 'merda', 'KKK'])
-    print(tokenise(s3) == ['Владелец', '20th', 'Century', 'Fox', 'намерен', 'купить', 'Warner', 'Bros', '.'])
-    print(tokenise(s4) == ['RT', '@facugambande', ':', 'Ya', 'por', 'arrancar', 'a', 'grabar', '!', '!', '!', '#TirenTirenTiren', 'vamoo', '!', '!'])
-    print(tokenise(s5) == ['http://t.co/7r8d5bVKyA', 'http://t.co/hZpwZe1uKt', 'http://t.co/ZKb7GKWocy', 'Ничто', 'так', 'не', 'сближает', 'людей']    )
+   
+    
+    t0 = ['This', 'is', 'a', 'cooool', '#dummysmiley', ':', ':-)', ':-P', '<3']
+    t1 = ['Naps', 'are', 'a', 'must', '\ud83d', '\ude34', '\ud83d', '\ude34']
+    t2 = ['Renato', 'fica', 'com', 'muito', 'medo', 'de', 'ouvir', 'meus', 'áudios', 'perto', 'da', 'gaja', 'dele', ',', 'pois', 'só', 'falo', 'merda', 'KKK']
+    t3 = ['Владелец', '20th', 'Century', 'Fox', 'намерен', 'купить', 'Warner', 'Bros', '.']
+    t4 = ['RT', '@facugambande', ':', 'Ya', 'por', 'arrancar', 'a', 'grabar', '!', '!', '!', '#TirenTirenTiren', 'vamoo', '!', '!']
+    t5 = ['http://t.co/7r8d5bVKyA', 'http://t.co/hZpwZe1uKt', 'http://t.co/ZKb7GKWocy', 'Ничто', 'так', 'не', 'сближает', 'людей'] 
+
+    tweets = [s0, s1, s2, s3, s4, s5]
+    toks = [t0, t1, t2, t3, t4, t5]
+    
+    for (s, t) in zip(tweets, toks):
+        print(test(s, t))
+
+    #print(tokenise(s0) == ['This', 'is', 'a', 'cooool', '#dummysmiley', ':', ':-)', ':-P', '<3'])
+    #print(tokenise(s1) == ['Naps', 'are', 'a', 'must', '\ud83d', '\ude34', '\ud83d', '\ude34'])
+    #print(tokenise(s2) == ['Renato', 'fica', 'com', 'muito', 'medo', 'de', 'ouvir', 'meus', 'áudios', 'perto', 'da', 'gaja', 'dele', ',', 'pois', 'só', 'falo', 'merda', 'KKK'])
+    #print(tokenise(s3) == ['Владелец', '20th', 'Century', 'Fox', 'намерен', 'купить', 'Warner', 'Bros', '.'])
+    #print(tokenise(s4) == ['RT', '@facugambande', ':', 'Ya', 'por', 'arrancar', 'a', 'grabar', '!', '!', '!', '#TirenTirenTiren', 'vamoo', '!', '!'])
+    #print(tokenise(s5) == ['http://t.co/7r8d5bVKyA', 'http://t.co/hZpwZe1uKt', 'http://t.co/ZKb7GKWocy', 'Ничто', 'так', 'не', 'сближает', 'людей']    )
     
 
     
