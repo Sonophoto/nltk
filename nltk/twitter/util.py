@@ -1,3 +1,8 @@
+import datetime
+import os
+
+
+
 """
 Fetch credentials from a JSON format file
 
@@ -23,6 +28,19 @@ def credentials(cred_fn):
         OAUTH_TOKEN_SECRET = creds['OAUTH_TOKEN_SECRET']
         
         return (APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    
+
+def timestamped_file(fprefix, subdir=''):
+    if subdir:
+            if not os.path.exists(subdir):
+                os.mkdir(subdir)
+               
+    fname = os.path.join(subdir, fprefix)
+    fmt = '%Y%m%d-%H%M%S'
+    ts = datetime.datetime.now().strftime(fmt)
+    outfile = '{0}.{1}.json'.format(fname, ts)
+    return outfile
+    
     
     
     

@@ -136,8 +136,18 @@ def hydrate_demo(infile):
     for i in ids:
         print(i)
         
+def corpusreader_demo():
+    from reader import TwitterCorpusReader
+    root = 'streamed_data/'
+    reader = TwitterCorpusReader(root, '.*\.json')
+    #tweets = reader.jsonlist()
+    for t in reader.tweets()[:10]:
+        print(t.encode('utf8'))
     
-demos = [3]
+    
+        
+    
+demos = [4]
 
 if __name__ == "__main__":
     if 1 in demos:
@@ -146,6 +156,8 @@ if __name__ == "__main__":
         dehydrate_demo('ids.txt')
     if 3 in demos:
         hydrate_demo('ids.txt')
+    if 4 in demos:
+        corpusreader_demo()
 
 
     

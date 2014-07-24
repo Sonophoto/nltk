@@ -1,3 +1,11 @@
+# Natural Language Toolkit: Twitter Tokenizer
+#
+# Copyright (C) 2001-2014 NLTK Project
+# Author: Brendan O'Connor <anyall.org>
+#         Ewan Klein <ewan@inf.ed.ac.uk>
+# URL: <http://nltk.org/>
+# For license information, see LICENSE.TXT
+
 
 """ tokenizer for tweets!  might be appropriate for other social media dialects too.
 general philosophy is to throw as little out as possible.
@@ -7,11 +15,13 @@ and only accept the ones that seeem to result in good diffs, it's a sort of
 statistical learning with in-the-loop human evaluation :)
 """
 
-__author__="brendan o'connor (anyall.org)"
 
-import re,sys
+
+import re
+import sys
 import emoticons
-mycompile = lambda pat:  re.compile(pat,  re.UNICODE)
+
+re_compile = lambda pat:  re.compile(pat,  re.UNICODE)
 
 def regex_or(*items):
     r = '|'.join(items)
@@ -87,7 +97,7 @@ ProtectThese = [
     Decorations,
     EmbeddedApostrophe,
 ]
-Protect_RE = mycompile(regex_or(*ProtectThese))
+Protect_RE = re_compile(regex_or(*ProtectThese))
 
 
 class Tokenization(list):
@@ -174,7 +184,7 @@ def simple_tokenize(text):
     res = post_process(res)
     return res
 
-AposS = mycompile(r"(\S+)('s)$")
+AposS = re_compile(r"(\S+)('s)$")
 
 def post_process(pre_toks):
     # hacky: further splitting of certain tokens
@@ -187,7 +197,7 @@ def post_process(pre_toks):
             post_toks.append( tok )
     return post_toks
 
-WS_RE = mycompile(r'\s+')
+WS_RE = re_compile(r'\s+')
 
 def squeeze_whitespace(s):
     new_string = WS_RE.sub(" ",s)
@@ -199,8 +209,8 @@ EdgePunct      = r"""[  ' " “ ” ‘ ’ < > « » { } ( \) [ \]  ]""".replac
 NotEdgePunct = r"""[a-zA-Z0-9]"""
 EdgePunctLeft  = r"""(\s|^)(%s+)(%s)""" % (EdgePunct, NotEdgePunct)
 EdgePunctRight =   r"""(%s)(%s+)(\s|$)""" % (NotEdgePunct, EdgePunct)
-EdgePunctLeft_RE = mycompile(EdgePunctLeft)
-EdgePunctRight_RE= mycompile(EdgePunctRight)
+EdgePunctLeft_RE = re_compile(EdgePunctLeft)
+EdgePunctRight_RE= re_compile(EdgePunctRight)
 
 def edge_punct_munge(s):
     s = EdgePunctLeft_RE.sub( r"\1\2 \3", s)
