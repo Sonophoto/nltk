@@ -65,40 +65,53 @@ emoticon_string = r"""
       <3                         # heart
     )"""
 
-# URL pattern due to John Gruber
+# URL pattern due to John Gruber, modified by Tom Winzig https://gist.github.com/winzig/8894715
 
-url_string = r"""
-(
-(?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]
-|
-[a-z0-9.\-]+[.‌​][a-z]{2,4}/)
-(?:[^\s()<>]+
-|
-(([^\s()<>]+|(([^\s()<>]+)))*))+
-(?:(([^\s()<>]+|(‌​([^\s()<>]+)))*)
-|
-[^\s`!()[]{};:'".,<>?«»“”‘’])
-)
+url_string = r"""				# Capture 1: entire matched URL
+  (?:
+  https?:				# URL protocol and colon
+    (?:
+      /{1,3}						# 1-3 slashes
+      |								#   or
+      [a-z0-9%]						# Single letter or digit or '%'
+      								# (Trying not to match e.g. "URI::Escape")
+    )
+    |							#   or
+    							# looks like domain name followed by a slash:
+    [a-z0-9.\-]+[.]
+    (?:[a-z]{2,13})
+    /
+  )
+  (?:							# One or more:
+    [^\s()<>{}\[\]]+						# Run of non-space, non-()<>{}[]
+    |								#   or
+    \([^\s()]*?\([^\s()]+\)[^\s()]*?\)  # balanced parens, one level deep: (…(…)…)
+    |
+    \([^\s]+?\)							# balanced parens, non-recursive: (…)
+  )+
+  (?:							# End with:
+    \([^\s()]*?\([^\s()]+\)[^\s()]*?\)  # balanced parens, one level deep: (…(…)…)
+    |
+    \([^\s]+?\)							# balanced parens, non-recursive: (…)
+    |									#   or
+    [^\s`!()\[\]{};:'".,<>?«»“”‘’]		# not a space or one of these punct chars
+  )
+  |					# OR, the following to match naked domains:
+  (?:
+  	(?<!@)			# not preceded by a @, avoid matching foo@_gmail.com_
+    [a-z0-9]+
+    (?:[.\-][a-z0-9]+)*
+    [.]
+    (?:[a-z]{2,13})
+    \b
+    /?
+    (?!@)			# not succeeded by a @, avoid matching "foo.na" in "foo.na@example.com"
+  )
 """
-
-#url_string = r"""
-#(?i)
-#\b(
-    #(?:https?://|www\d{0,3}[.]
-    #|
-    #[a-z0-9.\-]+[.][a-z]{2,4}/)
-    #(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))
-    #+(
-        #?:\
-        #(([^\s()<>]+|(\([^\s()<>]+\)))*\)
-        #|
-        #[^\s`!()\[\]{};:\'".,<>?\xab\xbb\u201c\u201d\u2018\u2019]
-    #)
-#)
-#"""
 
 # The components of the tokenizer:
 regex_strings = (
+    url_string,
     # Phone numbers:
     r"""
     (?:
@@ -141,11 +154,9 @@ regex_strings = (
     |
     (?:\S)                         # Everything else that isn't whitespace.
     """
-    ,
-    # URLs
-    url_string,
-    r"""(?:\S)"""
-
+    #,
+    ## URLs
+    #url_string
     )
 
 ######################################################################
