@@ -1,7 +1,7 @@
 # Natural Language Toolkit: Twitter Tokenizer
 #
 # Copyright (C) 2001-2014 NLTK Project
-# Author: Christopher Potts
+# Author: Christopher Potts <cgpotts@stanford.edu>
 #         Ewan Klein <ewan@inf.ed.ac.uk>
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
@@ -34,7 +34,6 @@ domains and tasks. The basic logic is this:
 
 import html.entities
 import re
-import urllib.request, urllib.parse, urllib.error
 
 ######################################################################
 # The following strings are components in the regular expression
@@ -190,7 +189,7 @@ class TweetTokenizer:
         except UnicodeDecodeError:
             s = str(s).encode('string_escape')
             s = str(s)
-        # Fix HTML character entitites:
+        # Fix HTML character entities:
         s = self.__html2unicode(s)
         # Tokenize:
         words = word_re.findall(s)
