@@ -11,7 +11,7 @@ import os
 import datetime
 
 from twython import Twython, TwythonStreamer
-from util import credentials
+from util import authenticate
 
 class Streamer(TwythonStreamer):
     def __init__(self, app_key, app_secret, oauth_token, oauth_token_secret):
@@ -111,17 +111,45 @@ def dehydrate(infile):
         ids = [json.loads(t)['id_str'] for t in tweets]        
         return ids
 
-
-def stream_demo():
-    client = Streamer(*credentials('creds.json'))
-        
-    handler = TweetHandler(client)
+def add_access_token(creds_file=None):
+    if creds_file is None:
+            path = os.path.dirname(__file__)
+            creds_file = os.path.join(path, 'credentials2.txt')  
+    oauth2 = authenticate(creds_file=creds_file)
+    APP_KEY = oauth2['app_key']
+    APP_SECRET = oauth2['app_secret']
     
-    method = handler.dump
-    #method = handler.render      
+    twitter = Twython(APP_KEY, APP_SECRET, oauth_version=2)
+    ACCESS_TOKEN = twitter.obtain_access_token()
+    s = 'access_token={}\n'.format(ACCESS_TOKEN)
+    with open(creds_file, 'a') as f:
+        print(s, file=f)
+
+#def use_access_token():
+    #oauth2 = authenticate()
+    #APP_KEY = oauth2['app_key']
+    #ACCESS_TOKEN = oauth2['access_token']
+    #twitter = Twython(**oauth2)
+    ##twitter = Twython(app_key=APP_KEY, access_token=ACCESS_TOKEN)
+    #print('foo')
+
+def streamtoscreen_demo(limit=20):
+    #client = Streamer(*credentials('creds.json'))
+    oauth = authenticate('credentials1.txt') 
+    client = Streamer(**oauth)        
+    handler = TweetHandler(client, limit=limit)
+    method = handler.render
     client.register(method)
     client.statuses.sample()
     
+def streamtofile_demo(limit=20):
+    #client = Streamer(*credentials('creds.json'))
+    oauth = authenticate('credentials1.txt') 
+    client = Streamer(**oauth)
+    handler = TweetHandler(client, limit=limit)    
+    method = handler.dump    
+    client.register(method)
+    client.statuses.sample()    
     
 def dehydrate_demo(outfile):
     infile = 'streamed_data/tweets.20140723-163436.json'
@@ -132,7 +160,8 @@ def dehydrate_demo(outfile):
             
 
 def hydrate_demo(infile, outfile):
-    client = Query(*credentials('creds.json'))
+    oauth = authenticate('credentials1.txt')
+    client = Query(**oauth)
     tweets = client.hydrate(infile)
     with open(outfile, 'w') as f:
         for data in tweets:
@@ -153,11 +182,14 @@ def corpusreader_demo():
     
         
     
-demos = [3]
+demos = [0]
 
 if __name__ == "__main__":
+
+    if 0 in demos:
+        streamtoscreen_demo()    
     if 1 in demos:
-        stream_demo()
+        streamtofile_demo()
     if 2 in demos:
         dehydrate_demo('ids.txt')
     if 3 in demos:
