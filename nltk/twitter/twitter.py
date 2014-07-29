@@ -11,7 +11,7 @@ import os
 import datetime
 
 from twython import Twython, TwythonStreamer
-from util import authenticate
+#from util import authenticate
 
 class Streamer(TwythonStreamer):
     def __init__(self, app_key, app_secret, oauth_token, oauth_token_secret):
@@ -110,6 +110,41 @@ def dehydrate(infile):
     with open(infile) as tweets:
         ids = [json.loads(t)['id_str'] for t in tweets]        
         return ids
+    
+
+def authenticate(creds_file=None):
+    """
+    Read OAuth credentials from a text file.  
+    
+    File format for OAuth 1:
+    ========================
+    app_key=YOUR_APP_KEY
+    app_secret=YOUR_APP_SECRET
+    oauth_token=OAUTH_TOKEN
+    oauth_token_secret=OAUTH_TOKEN_SECRET
+    
+    
+    File format for OAuth 2
+    =======================
+    app_key=YOUR_APP_KEY
+    app_secret=YOUR_APP_SECRET
+    access_token=ACCESS_TOKEN
+   
+    :param file_name: File containing credentials. None (default) reads
+    data from "./credentials.txt"
+    """
+    if creds_file is None:
+        path = os.path.dirname(__file__)
+        creds_file = os.path.join(path, 'credentials.txt')
+
+    with open(creds_file) as f:
+        oauth = {}
+        for line in f:
+            if '=' in line:
+                name, value = line.split('=', 1)
+                oauth[name.strip()] = value.strip()    
+    return oauth
+    
 
 def add_access_token(creds_file=None):
     if creds_file is None:
