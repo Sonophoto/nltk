@@ -136,37 +136,3 @@ class TwitterCorpusReader(CorpusReader):
                        #for (path, enc, fileid)
                        #in self.abspaths(fileids, True, True)])
 
-    #def paras(self, fileids=None):
-        #"""
-        #:return: the given file(s) as a list of
-            #paragraphs, each encoded as a list of sentences, which are
-            #in turn encoded as lists of word strings.
-        #:rtype: list(list(list(str)))
-        #"""
-        #if self._sent_tokenizer is None:
-            #raise ValueError('No sentence tokenizer for this corpus')
-
-        #return concat([self.CorpusView(path, self._read_para_block, encoding=enc)
-                       #for (path, enc, fileid)
-                       #in self.abspaths(fileids, True, True)])
-
-    #def _read_word_block(self, stream):
-        #words = []
-        #for i in range(20): # Read 20 lines at a time.
-            #words.extend(self._word_tokenizer.tokenize(stream.readline()))
-        #return words
-
-    #def _read_sent_block(self, stream):
-        #sents = []
-        #for para in self._para_block_reader(stream):
-            #sents.extend([self._word_tokenizer.tokenize(sent)
-                          #for sent in self._sent_tokenizer.tokenize(para)])
-        #return sents
-
-    #def _read_para_block(self, stream):
-        #paras = []
-        #for para in self._para_block_reader(stream):
-            #paras.append([self._word_tokenizer.tokenize(sent)
-                          #for sent in self._sent_tokenizer.tokenize(para)])
-        #return paras
-
