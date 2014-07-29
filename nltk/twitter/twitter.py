@@ -104,8 +104,12 @@ class TweetHandler:
                 if verbose:
                     print('Writing to new file {}'.format(self.fname))           
                     #print(self.counter)                    
-                  
 
+
+################################
+# Utility functions
+################################                    
+                    
 def dehydrate(infile):
     with open(infile) as tweets:
         ids = [json.loads(t)['id_str'] for t in tweets]        
@@ -167,6 +171,11 @@ def add_access_token(creds_file=None):
     #twitter = Twython(**oauth2)
     ##twitter = Twython(app_key=APP_KEY, access_token=ACCESS_TOKEN)
     #print('foo')
+
+
+################################
+# Demos
+################################  
 
 def streamtoscreen_demo(limit=20):
     #client = Streamer(*credentials('creds.json'))
