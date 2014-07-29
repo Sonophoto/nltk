@@ -5,6 +5,7 @@
 # URL: <http://nltk.org/>
 # For license information, see LICENSE.TXT
 
+import itertools
 import json
 import os
 import datetime
@@ -35,14 +36,14 @@ class Query:
         
         
     def hydrate(self, infile):
-        ids = []
         with open(infile) as f:
-            for line in f:
-                ids.append(line.rstrip())
-                id_chunks = [ids[i:i+100] for i in range(0, len(ids), 100)]
-                # returns line-delimited json
-            return self.client.post('statuses/lookup', {'id':  id_chunks})
-                
+            ids = [line.rstrip() for line in f]
+         
+         # The Twitter endpoint takes lists of up to 100 ids, so we chunk the ids   
+        id_chunks = [ids[i:i+100] for i in range(0, len(ids), 100)]
+        listoflists = [self.client.post('statuses/lookup', {'id': chunk}) for chunk in id_chunks]
+        return itertools.chain.from_iterable(listoflists)
+       
         
 class TweetHandler:
     def __init__(self, client, limit=2000, repeat=False, fprefix='tweets', subdir='streamed_data', ):
@@ -130,24 +131,29 @@ def dehydrate_demo(outfile):
             print(id_str, file=f)
             
 
-def hydrate_demo(infile):
+def hydrate_demo(infile, outfile):
     client = Query(*credentials('creds.json'))
-    ids = client.hydrate(infile)
-    for i in ids:
-        print(i)
+    tweets = client.hydrate(infile)
+    with open(outfile, 'w') as f:
+        for data in tweets:
+            json_data = json.dumps(data)
+            f.write(json_data + "\n")                    
+       
         
 def corpusreader_demo():
     from reader import TwitterCorpusReader
     root = 'streamed_data/'
     reader = TwitterCorpusReader(root, '.*\.json')
-    #tweets = reader.jsonlist()
     for t in reader.tweets()[:10]:
-        print(t.encode('utf8'))
-    
+        print(t)
+        
+    for t in reader.tokenised_tweets()[:10]:
+        print(t)
+
     
         
     
-demos = [4]
+demos = [3]
 
 if __name__ == "__main__":
     if 1 in demos:
@@ -155,7 +161,7 @@ if __name__ == "__main__":
     if 2 in demos:
         dehydrate_demo('ids.txt')
     if 3 in demos:
-        hydrate_demo('ids.txt')
+        hydrate_demo('ids.txt', 'tmp.json')
     if 4 in demos:
         corpusreader_demo()
 
